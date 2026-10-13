@@ -22,3 +22,21 @@ document.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<
 ['product','cart','compare','checkout','success'].forEach(id=>{el(`${id}-close`).onclick=()=>closeDialog(`${id}-dialog`)});
 el('cart-open').onclick=()=>openDialog('cart-dialog');function showCompare(){renderCompare();openDialog('compare-dialog')}el('compare-open').onclick=showCompare;el('footer-compare').onclick=showCompare;el('hero-detail').onclick=()=>detail(1);el('spotlight-detail').onclick=()=>detail(5);
 el('checkout-open').onclick=()=>{if(!cart.length)return;closeDialog('cart-dialog');el('checkout-summary').textContent=`Demo total: ${money(total())} · Free demo shipping`;openDialog('checkout-dialog')};el('checkout-form').onsubmit=e=>{e.preventDefault();if(!cart.length)return;el('success-message').textContent=`Demo order for ${cart.reduce((s,i)=>s+i.qty,0)} phone(s), totaling ${money(total())}.`;cart=[];save();(el('checkout-form') as HTMLFormElement).reset();closeDialog('checkout-dialog');openDialog('success-dialog')};render();save();
+
+// Follow the device theme until a preference is explicitly chosen.
+const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+let preferredTheme: string | null = null;
+try { preferredTheme = localStorage.getItem('pulse-theme'); } catch {}
+function applyTheme(dark: boolean) {
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  el('theme-toggle').setAttribute('aria-pressed', String(dark));
+}
+applyTheme(preferredTheme === 'dark' || (preferredTheme !== 'light' && systemTheme.matches));
+el('theme-toggle').onclick = () => {
+  preferredTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(preferredTheme === 'dark');
+  try { localStorage.setItem('pulse-theme', preferredTheme); } catch {}
+};
+systemTheme.addEventListener('change', event => {
+  if (preferredTheme !== 'dark' && preferredTheme !== 'light') applyTheme(event.matches);
+});

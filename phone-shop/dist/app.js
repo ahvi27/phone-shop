@@ -89,3 +89,27 @@ el('checkout-form').onsubmit = e => { e.preventDefault(); if (!cart.length)
     return; el('success-message').textContent = `Demo order for ${cart.reduce((s, i) => s + i.qty, 0)} phone(s), totaling ${money(total())}.`; cart = []; save(); el('checkout-form').reset(); closeDialog('checkout-dialog'); openDialog('success-dialog'); };
 render();
 save();
+// Follow the device theme until a preference is explicitly chosen.
+const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+let preferredTheme = null;
+try {
+    preferredTheme = localStorage.getItem('pulse-theme');
+}
+catch { }
+function applyTheme(dark) {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    el('theme-toggle').setAttribute('aria-pressed', String(dark));
+}
+applyTheme(preferredTheme === 'dark' || (preferredTheme !== 'light' && systemTheme.matches));
+el('theme-toggle').onclick = () => {
+    preferredTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(preferredTheme === 'dark');
+    try {
+        localStorage.setItem('pulse-theme', preferredTheme);
+    }
+    catch { }
+};
+systemTheme.addEventListener('change', event => {
+    if (preferredTheme !== 'dark' && preferredTheme !== 'light')
+        applyTheme(event.matches);
+});
