@@ -1,0 +1,1 @@
+{"name":"pulse-phone-store","version":"1.0.0","private":true,"description":"A modern TypeScript phone shop","scripts":{"build":"tsc","typecheck":"tsc --noEmit","dev":"npm run build && python3 -m http.server 5173 --directory dist"},"devDependencies":{"typescript":"5.9.3"}}
